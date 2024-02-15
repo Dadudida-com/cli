@@ -379,9 +379,10 @@ func createFromScratch(opts *CreateOptions) error {
 	isTTY := opts.IO.IsStdoutTTY()
 	if isTTY {
 		fmt.Fprintf(opts.IO.Out,
-			"%s Created repository %s on GitHub\n",
+			"%s Created repository %s on GitHub\n  %s\n",
 			cs.SuccessIconWithColor(cs.Green),
-			ghrepo.FullName(repo))
+			ghrepo.FullName(repo),
+			repo.URL)
 	} else {
 		fmt.Fprintln(opts.IO.Out, repo.URL)
 	}
@@ -395,7 +396,7 @@ func createFromScratch(opts *CreateOptions) error {
 	}
 
 	if opts.Clone {
-		protocol := cfg.Authentication().GitProtocol(repo.RepoHost())
+		protocol := cfg.GitProtocol(repo.RepoHost())
 		remoteURL := ghrepo.FormatRemoteURL(repo, protocol)
 
 		if !opts.AddReadme && opts.LicenseTemplate == "" && opts.GitIgnoreTemplate == "" && opts.Template == "" {
@@ -482,9 +483,10 @@ func createFromTemplate(opts *CreateOptions) error {
 
 	cs := opts.IO.ColorScheme()
 	fmt.Fprintf(opts.IO.Out,
-		"%s Created repository %s on GitHub\n",
+		"%s Created repository %s on GitHub\n  %s\n",
 		cs.SuccessIconWithColor(cs.Green),
-		ghrepo.FullName(repo))
+		ghrepo.FullName(repo),
+		repo.URL)
 
 	opts.Clone, err = opts.Prompter.Confirm("Clone the new repository locally?", true)
 	if err != nil {
@@ -492,7 +494,7 @@ func createFromTemplate(opts *CreateOptions) error {
 	}
 
 	if opts.Clone {
-		protocol := cfg.Authentication().GitProtocol(repo.RepoHost())
+		protocol := cfg.GitProtocol(repo.RepoHost())
 		remoteURL := ghrepo.FormatRemoteURL(repo, protocol)
 
 		if err := cloneWithRetry(opts, remoteURL, templateRepoMainBranch); err != nil {
@@ -607,14 +609,15 @@ func createFromLocal(opts *CreateOptions) error {
 
 	if isTTY {
 		fmt.Fprintf(stdout,
-			"%s Created repository %s on GitHub\n",
+			"%s Created repository %s on GitHub\n  %s\n",
 			cs.SuccessIconWithColor(cs.Green),
-			ghrepo.FullName(repo))
+			ghrepo.FullName(repo),
+			repo.URL)
 	} else {
 		fmt.Fprintln(stdout, repo.URL)
 	}
 
-	protocol := cfg.Authentication().GitProtocol(repo.RepoHost())
+	protocol := cfg.GitProtocol(repo.RepoHost())
 	remoteURL := ghrepo.FormatRemoteURL(repo, protocol)
 
 	if opts.Interactive {

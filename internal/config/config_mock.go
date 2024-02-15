@@ -23,14 +23,35 @@ var _ Config = &ConfigMock{}
 //			AuthenticationFunc: func() *AuthConfig {
 //				panic("mock out the Authentication method")
 //			},
-//			GetFunc: func(s1 string, s2 string) (string, error) {
-//				panic("mock out the Get method")
+//			BrowserFunc: func(s string) string {
+//				panic("mock out the Browser method")
+//			},
+//			EditorFunc: func(s string) string {
+//				panic("mock out the Editor method")
 //			},
 //			GetOrDefaultFunc: func(s1 string, s2 string) (string, error) {
 //				panic("mock out the GetOrDefault method")
 //			},
+//			GitProtocolFunc: func(s string) string {
+//				panic("mock out the GitProtocol method")
+//			},
+//			HTTPUnixSocketFunc: func(s string) string {
+//				panic("mock out the HTTPUnixSocket method")
+//			},
+//			MigrateFunc: func(migration Migration) error {
+//				panic("mock out the Migrate method")
+//			},
+//			PagerFunc: func(s string) string {
+//				panic("mock out the Pager method")
+//			},
+//			PromptFunc: func(s string) string {
+//				panic("mock out the Prompt method")
+//			},
 //			SetFunc: func(s1 string, s2 string, s3 string)  {
 //				panic("mock out the Set method")
+//			},
+//			VersionFunc: func() string {
+//				panic("mock out the Version method")
 //			},
 //			WriteFunc: func() error {
 //				panic("mock out the Write method")
@@ -48,14 +69,35 @@ type ConfigMock struct {
 	// AuthenticationFunc mocks the Authentication method.
 	AuthenticationFunc func() *AuthConfig
 
-	// GetFunc mocks the Get method.
-	GetFunc func(s1 string, s2 string) (string, error)
+	// BrowserFunc mocks the Browser method.
+	BrowserFunc func(s string) string
+
+	// EditorFunc mocks the Editor method.
+	EditorFunc func(s string) string
 
 	// GetOrDefaultFunc mocks the GetOrDefault method.
 	GetOrDefaultFunc func(s1 string, s2 string) (string, error)
 
+	// GitProtocolFunc mocks the GitProtocol method.
+	GitProtocolFunc func(s string) string
+
+	// HTTPUnixSocketFunc mocks the HTTPUnixSocket method.
+	HTTPUnixSocketFunc func(s string) string
+
+	// MigrateFunc mocks the Migrate method.
+	MigrateFunc func(migration Migration) error
+
+	// PagerFunc mocks the Pager method.
+	PagerFunc func(s string) string
+
+	// PromptFunc mocks the Prompt method.
+	PromptFunc func(s string) string
+
 	// SetFunc mocks the Set method.
 	SetFunc func(s1 string, s2 string, s3 string)
+
+	// VersionFunc mocks the Version method.
+	VersionFunc func() string
 
 	// WriteFunc mocks the Write method.
 	WriteFunc func() error
@@ -68,12 +110,15 @@ type ConfigMock struct {
 		// Authentication holds details about calls to the Authentication method.
 		Authentication []struct {
 		}
-		// Get holds details about calls to the Get method.
-		Get []struct {
-			// S1 is the s1 argument value.
-			S1 string
-			// S2 is the s2 argument value.
-			S2 string
+		// Browser holds details about calls to the Browser method.
+		Browser []struct {
+			// S is the s argument value.
+			S string
+		}
+		// Editor holds details about calls to the Editor method.
+		Editor []struct {
+			// S is the s argument value.
+			S string
 		}
 		// GetOrDefault holds details about calls to the GetOrDefault method.
 		GetOrDefault []struct {
@@ -81,6 +126,31 @@ type ConfigMock struct {
 			S1 string
 			// S2 is the s2 argument value.
 			S2 string
+		}
+		// GitProtocol holds details about calls to the GitProtocol method.
+		GitProtocol []struct {
+			// S is the s argument value.
+			S string
+		}
+		// HTTPUnixSocket holds details about calls to the HTTPUnixSocket method.
+		HTTPUnixSocket []struct {
+			// S is the s argument value.
+			S string
+		}
+		// Migrate holds details about calls to the Migrate method.
+		Migrate []struct {
+			// Migration is the migration argument value.
+			Migration Migration
+		}
+		// Pager holds details about calls to the Pager method.
+		Pager []struct {
+			// S is the s argument value.
+			S string
+		}
+		// Prompt holds details about calls to the Prompt method.
+		Prompt []struct {
+			// S is the s argument value.
+			S string
 		}
 		// Set holds details about calls to the Set method.
 		Set []struct {
@@ -91,15 +161,25 @@ type ConfigMock struct {
 			// S3 is the s3 argument value.
 			S3 string
 		}
+		// Version holds details about calls to the Version method.
+		Version []struct {
+		}
 		// Write holds details about calls to the Write method.
 		Write []struct {
 		}
 	}
 	lockAliases        sync.RWMutex
 	lockAuthentication sync.RWMutex
-	lockGet            sync.RWMutex
+	lockBrowser        sync.RWMutex
+	lockEditor         sync.RWMutex
 	lockGetOrDefault   sync.RWMutex
+	lockGitProtocol    sync.RWMutex
+	lockHTTPUnixSocket sync.RWMutex
+	lockMigrate        sync.RWMutex
+	lockPager          sync.RWMutex
+	lockPrompt         sync.RWMutex
 	lockSet            sync.RWMutex
+	lockVersion        sync.RWMutex
 	lockWrite          sync.RWMutex
 }
 
@@ -157,39 +237,67 @@ func (mock *ConfigMock) AuthenticationCalls() []struct {
 	return calls
 }
 
-// Get calls GetFunc.
-func (mock *ConfigMock) Get(s1 string, s2 string) (string, error) {
-	if mock.GetFunc == nil {
-		panic("ConfigMock.GetFunc: method is nil but Config.Get was just called")
+// Browser calls BrowserFunc.
+func (mock *ConfigMock) Browser(s string) string {
+	if mock.BrowserFunc == nil {
+		panic("ConfigMock.BrowserFunc: method is nil but Config.Browser was just called")
 	}
 	callInfo := struct {
-		S1 string
-		S2 string
+		S string
 	}{
-		S1: s1,
-		S2: s2,
+		S: s,
 	}
-	mock.lockGet.Lock()
-	mock.calls.Get = append(mock.calls.Get, callInfo)
-	mock.lockGet.Unlock()
-	return mock.GetFunc(s1, s2)
+	mock.lockBrowser.Lock()
+	mock.calls.Browser = append(mock.calls.Browser, callInfo)
+	mock.lockBrowser.Unlock()
+	return mock.BrowserFunc(s)
 }
 
-// GetCalls gets all the calls that were made to Get.
+// BrowserCalls gets all the calls that were made to Browser.
 // Check the length with:
 //
-//	len(mockedConfig.GetCalls())
-func (mock *ConfigMock) GetCalls() []struct {
-	S1 string
-	S2 string
+//	len(mockedConfig.BrowserCalls())
+func (mock *ConfigMock) BrowserCalls() []struct {
+	S string
 } {
 	var calls []struct {
-		S1 string
-		S2 string
+		S string
 	}
-	mock.lockGet.RLock()
-	calls = mock.calls.Get
-	mock.lockGet.RUnlock()
+	mock.lockBrowser.RLock()
+	calls = mock.calls.Browser
+	mock.lockBrowser.RUnlock()
+	return calls
+}
+
+// Editor calls EditorFunc.
+func (mock *ConfigMock) Editor(s string) string {
+	if mock.EditorFunc == nil {
+		panic("ConfigMock.EditorFunc: method is nil but Config.Editor was just called")
+	}
+	callInfo := struct {
+		S string
+	}{
+		S: s,
+	}
+	mock.lockEditor.Lock()
+	mock.calls.Editor = append(mock.calls.Editor, callInfo)
+	mock.lockEditor.Unlock()
+	return mock.EditorFunc(s)
+}
+
+// EditorCalls gets all the calls that were made to Editor.
+// Check the length with:
+//
+//	len(mockedConfig.EditorCalls())
+func (mock *ConfigMock) EditorCalls() []struct {
+	S string
+} {
+	var calls []struct {
+		S string
+	}
+	mock.lockEditor.RLock()
+	calls = mock.calls.Editor
+	mock.lockEditor.RUnlock()
 	return calls
 }
 
@@ -226,6 +334,166 @@ func (mock *ConfigMock) GetOrDefaultCalls() []struct {
 	mock.lockGetOrDefault.RLock()
 	calls = mock.calls.GetOrDefault
 	mock.lockGetOrDefault.RUnlock()
+	return calls
+}
+
+// GitProtocol calls GitProtocolFunc.
+func (mock *ConfigMock) GitProtocol(s string) string {
+	if mock.GitProtocolFunc == nil {
+		panic("ConfigMock.GitProtocolFunc: method is nil but Config.GitProtocol was just called")
+	}
+	callInfo := struct {
+		S string
+	}{
+		S: s,
+	}
+	mock.lockGitProtocol.Lock()
+	mock.calls.GitProtocol = append(mock.calls.GitProtocol, callInfo)
+	mock.lockGitProtocol.Unlock()
+	return mock.GitProtocolFunc(s)
+}
+
+// GitProtocolCalls gets all the calls that were made to GitProtocol.
+// Check the length with:
+//
+//	len(mockedConfig.GitProtocolCalls())
+func (mock *ConfigMock) GitProtocolCalls() []struct {
+	S string
+} {
+	var calls []struct {
+		S string
+	}
+	mock.lockGitProtocol.RLock()
+	calls = mock.calls.GitProtocol
+	mock.lockGitProtocol.RUnlock()
+	return calls
+}
+
+// HTTPUnixSocket calls HTTPUnixSocketFunc.
+func (mock *ConfigMock) HTTPUnixSocket(s string) string {
+	if mock.HTTPUnixSocketFunc == nil {
+		panic("ConfigMock.HTTPUnixSocketFunc: method is nil but Config.HTTPUnixSocket was just called")
+	}
+	callInfo := struct {
+		S string
+	}{
+		S: s,
+	}
+	mock.lockHTTPUnixSocket.Lock()
+	mock.calls.HTTPUnixSocket = append(mock.calls.HTTPUnixSocket, callInfo)
+	mock.lockHTTPUnixSocket.Unlock()
+	return mock.HTTPUnixSocketFunc(s)
+}
+
+// HTTPUnixSocketCalls gets all the calls that were made to HTTPUnixSocket.
+// Check the length with:
+//
+//	len(mockedConfig.HTTPUnixSocketCalls())
+func (mock *ConfigMock) HTTPUnixSocketCalls() []struct {
+	S string
+} {
+	var calls []struct {
+		S string
+	}
+	mock.lockHTTPUnixSocket.RLock()
+	calls = mock.calls.HTTPUnixSocket
+	mock.lockHTTPUnixSocket.RUnlock()
+	return calls
+}
+
+// Migrate calls MigrateFunc.
+func (mock *ConfigMock) Migrate(migration Migration) error {
+	if mock.MigrateFunc == nil {
+		panic("ConfigMock.MigrateFunc: method is nil but Config.Migrate was just called")
+	}
+	callInfo := struct {
+		Migration Migration
+	}{
+		Migration: migration,
+	}
+	mock.lockMigrate.Lock()
+	mock.calls.Migrate = append(mock.calls.Migrate, callInfo)
+	mock.lockMigrate.Unlock()
+	return mock.MigrateFunc(migration)
+}
+
+// MigrateCalls gets all the calls that were made to Migrate.
+// Check the length with:
+//
+//	len(mockedConfig.MigrateCalls())
+func (mock *ConfigMock) MigrateCalls() []struct {
+	Migration Migration
+} {
+	var calls []struct {
+		Migration Migration
+	}
+	mock.lockMigrate.RLock()
+	calls = mock.calls.Migrate
+	mock.lockMigrate.RUnlock()
+	return calls
+}
+
+// Pager calls PagerFunc.
+func (mock *ConfigMock) Pager(s string) string {
+	if mock.PagerFunc == nil {
+		panic("ConfigMock.PagerFunc: method is nil but Config.Pager was just called")
+	}
+	callInfo := struct {
+		S string
+	}{
+		S: s,
+	}
+	mock.lockPager.Lock()
+	mock.calls.Pager = append(mock.calls.Pager, callInfo)
+	mock.lockPager.Unlock()
+	return mock.PagerFunc(s)
+}
+
+// PagerCalls gets all the calls that were made to Pager.
+// Check the length with:
+//
+//	len(mockedConfig.PagerCalls())
+func (mock *ConfigMock) PagerCalls() []struct {
+	S string
+} {
+	var calls []struct {
+		S string
+	}
+	mock.lockPager.RLock()
+	calls = mock.calls.Pager
+	mock.lockPager.RUnlock()
+	return calls
+}
+
+// Prompt calls PromptFunc.
+func (mock *ConfigMock) Prompt(s string) string {
+	if mock.PromptFunc == nil {
+		panic("ConfigMock.PromptFunc: method is nil but Config.Prompt was just called")
+	}
+	callInfo := struct {
+		S string
+	}{
+		S: s,
+	}
+	mock.lockPrompt.Lock()
+	mock.calls.Prompt = append(mock.calls.Prompt, callInfo)
+	mock.lockPrompt.Unlock()
+	return mock.PromptFunc(s)
+}
+
+// PromptCalls gets all the calls that were made to Prompt.
+// Check the length with:
+//
+//	len(mockedConfig.PromptCalls())
+func (mock *ConfigMock) PromptCalls() []struct {
+	S string
+} {
+	var calls []struct {
+		S string
+	}
+	mock.lockPrompt.RLock()
+	calls = mock.calls.Prompt
+	mock.lockPrompt.RUnlock()
 	return calls
 }
 
@@ -266,6 +534,33 @@ func (mock *ConfigMock) SetCalls() []struct {
 	mock.lockSet.RLock()
 	calls = mock.calls.Set
 	mock.lockSet.RUnlock()
+	return calls
+}
+
+// Version calls VersionFunc.
+func (mock *ConfigMock) Version() string {
+	if mock.VersionFunc == nil {
+		panic("ConfigMock.VersionFunc: method is nil but Config.Version was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockVersion.Lock()
+	mock.calls.Version = append(mock.calls.Version, callInfo)
+	mock.lockVersion.Unlock()
+	return mock.VersionFunc()
+}
+
+// VersionCalls gets all the calls that were made to Version.
+// Check the length with:
+//
+//	len(mockedConfig.VersionCalls())
+func (mock *ConfigMock) VersionCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockVersion.RLock()
+	calls = mock.calls.Version
+	mock.lockVersion.RUnlock()
 	return calls
 }
 
