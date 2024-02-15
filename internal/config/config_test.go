@@ -14,6 +14,24 @@ func newTestConfig() *cfg {
 	}
 }
 
+func TestNewConfigProvidesFallback(t *testing.T) {
+	var spiedCfg *ghConfig.Config
+	ghConfig.Read = func(fallback *ghConfig.Config) (*ghConfig.Config, error) {
+		spiedCfg = fallback
+		return fallback, nil
+	}
+	_, err := NewConfig()
+	require.NoError(t, err)
+	requireKeyWithValue(t, spiedCfg, []string{versionKey}, "1")
+	requireKeyWithValue(t, spiedCfg, []string{gitProtocolKey}, "https")
+	requireKeyWithValue(t, spiedCfg, []string{editorKey}, "")
+	requireKeyWithValue(t, spiedCfg, []string{promptKey}, "enabled")
+	requireKeyWithValue(t, spiedCfg, []string{pagerKey}, "")
+	requireKeyWithValue(t, spiedCfg, []string{aliasesKey, "co"}, "pr checkout")
+	requireKeyWithValue(t, spiedCfg, []string{httpUnixSocketKey}, "")
+	requireKeyWithValue(t, spiedCfg, []string{browserKey}, "")
+}
+
 func TestGetNonExistentKey(t *testing.T) {
 	// Given we have no top level configuration
 	cfg := newTestConfig()
@@ -84,12 +102,12 @@ func TestGetOrDefaultApplicationDefaults(t *testing.T) {
 		key             string
 		expectedDefault string
 	}{
-		{"git_protocol", "https"},
-		{"editor", ""},
-		{"prompt", "enabled"},
-		{"pager", ""},
-		{"http_unix_socket", ""},
-		{"browser", ""},
+		{gitProtocolKey, "https"},
+		{editorKey, ""},
+		{promptKey, "enabled"},
+		{pagerKey, ""},
+		{httpUnixSocketKey, ""},
+		{browserKey, ""},
 	}
 
 	for _, tt := range tests {
@@ -110,10 +128,10 @@ func TestGetOrDefaultApplicationDefaults(t *testing.T) {
 func TestGetOrDefaultExistingKey(t *testing.T) {
 	// Given have a top level config entry
 	cfg := newTestConfig()
-	cfg.Set("", "git_protocol", "ssh")
+	cfg.Set("", gitProtocolKey, "ssh")
 
 	// When we get that key
-	val, err := cfg.GetOrDefault("", "git_protocol")
+	val, err := cfg.GetOrDefault("", gitProtocolKey)
 
 	// Then it returns successfully with the correct value, and doesn't fall back
 	// to the default
@@ -132,4 +150,57 @@ func TestGetOrDefaultNotFoundAndNoDefault(t *testing.T) {
 	var keyNotFoundError *ghConfig.KeyNotFoundError
 	require.ErrorAs(t, err, &keyNotFoundError)
 	require.Empty(t, val)
+}
+
+func TestFallbackConfig(t *testing.T) {
+	cfg := fallbackConfig()
+	requireKeyWithValue(t, cfg, []string{gitProtocolKey}, "https")
+	requireKeyWithValue(t, cfg, []string{editorKey}, "")
+	requireKeyWithValue(t, cfg, []string{promptKey}, "enabled")
+	requireKeyWithValue(t, cfg, []string{pagerKey}, "")
+	requireKeyWithValue(t, cfg, []string{aliasesKey, "co"}, "pr checkout")
+	requireKeyWithValue(t, cfg, []string{httpUnixSocketKey}, "")
+	requireKeyWithValue(t, cfg, []string{browserKey}, "")
+	requireNoKey(t, cfg, []string{"unknown"})
+}
+
+func TestSetTopLevelKey(t *testing.T) {
+	c := newTestConfig()
+	host := ""
+	key := "top-level-key"
+	val := "top-level-value"
+	c.Set(host, key, val)
+	requireKeyWithValue(t, c.cfg, []string{key}, val)
+}
+
+func TestSetHostSpecificKey(t *testing.T) {
+	c := newTestConfig()
+	host := "github.com"
+	key := "host-level-key"
+	val := "host-level-value"
+	c.Set(host, key, val)
+	requireKeyWithValue(t, c.cfg, []string{hostsKey, host, key}, val)
+}
+
+func TestSetUserSpecificKey(t *testing.T) {
+	c := newTestConfig()
+	host := "github.com"
+	user := "test-user"
+	c.cfg.Set([]string{hostsKey, host, userKey}, user)
+
+	key := "host-level-key"
+	val := "host-level-value"
+	c.Set(host, key, val)
+	requireKeyWithValue(t, c.cfg, []string{hostsKey, host, key}, val)
+	requireKeyWithValue(t, c.cfg, []string{hostsKey, host, usersKey, user, key}, val)
+}
+
+func TestSetUserSpecificKeyNoUserPresent(t *testing.T) {
+	c := newTestConfig()
+	host := "github.com"
+	key := "host-level-key"
+	val := "host-level-value"
+	c.Set(host, key, val)
+	requireKeyWithValue(t, c.cfg, []string{hostsKey, host, key}, val)
+	requireNoKey(t, c.cfg, []string{hostsKey, host, usersKey})
 }
