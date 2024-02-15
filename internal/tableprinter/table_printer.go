@@ -16,7 +16,7 @@ type TablePrinter struct {
 	cs    *iostreams.ColorScheme
 }
 
-// IsTTY gets wether the TablePrinter will render to a terminal.
+// IsTTY gets whether the TablePrinter will render to a terminal.
 func (t *TablePrinter) IsTTY() bool {
 	return t.isTTY
 }
@@ -30,12 +30,13 @@ func (tp *TablePrinter) AddTimeField(now, t time.Time, c func(string) string) {
 	} else {
 		tf = t.Format(time.RFC3339)
 	}
-	tp.AddField(tf, tableprinter.WithColor(c))
+	tp.AddField(tf, WithColor(c))
 }
 
 var (
-	WithTruncate = tableprinter.WithTruncate
 	WithColor    = tableprinter.WithColor
+	WithPadding  = tableprinter.WithPadding
+	WithTruncate = tableprinter.WithTruncate
 )
 
 type headerOption struct {
@@ -77,8 +78,8 @@ func NewWithWriter(w io.Writer, isTTY bool, maxWidth int, cs *iostreams.ColorSch
 
 		tp.AddHeader(
 			headers.columns,
-			tableprinter.WithPadding(paddingFunc),
-			tableprinter.WithColor(cs.LightGrayUnderline),
+			WithPadding(paddingFunc),
+			WithColor(cs.LightGrayUnderline),
 		)
 	}
 
